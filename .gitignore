@@ -1,0 +1,66 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Xcode build & user data
+build/
+DerivedData/
+*.xcuserstate
+*.xcscmblueprint
+*.xcworkspace/xcuserdata
+*.xcodeproj/xcuserdata
+*.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
+
+# SwiftPM / SPM
+/.build
+/Packages
+.swiftpm
+Package.resolved
+
+# CocoaPods (if ever used)
+Pods/
+Podfile.lock
+
+# Carthage
+Carthage/
+
+# Fastlane artifacts
+fastlane/report.xml
+fastlane/screenshots/
+fastlane/test_output/
+fastlane/*.log
+
+# SwiftLint
+.swiftlint_logs/
+
+# Coverage & profiling
+*.xcresult
+*.profdata
+*.gcno
+
+# Debug symbol dumps
+*.dSYM.zip
+*.dSYM
+
+# Archives
+*.ipa
+
+# Supabase Edge Functions – Node artifacts
+backend/supabase/functions/**/node_modules/
+backend/supabase/functions/**/.vercel/
+
+# General Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment & secrets
+.env
+.env.*
+
+# Temporary files
+*~
+*.swp
