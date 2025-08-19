@@ -6,37 +6,37 @@ This document outlines a step-by-step approach to implementing the Swivo applica
 
 ### Step 1: Initial Supabase Setup
 - [x] Create Supabase project
-- [ ] Configure project settings and environment variables
-- [ ] Set up version control for Supabase migrations
+- [x] Configure project settings and environment variables
+- [x] Set up version control for Supabase migrations
 
 ### Step 2: Database Schema Implementation
-- [ ] Create `users` table (id, username, apns_token, created_at)
-- [ ] Create `categories` table (id, name, icon_url)
-- [ ] Create `sessions` table (id, creator_id, category_id, quorum_n, status, matched_option_id, invite_code, created_at)
-- [ ] Create `session_participants` table (session_id, user_id, joined_at)
-- [ ] Create `options` table (id, category_id, label, image_url)
-- [ ] Create `session_options` table (session_id, option_id, order_index)
-- [ ] Create `likes` table (id, session_id, option_id, user_id, created_at)
-- [ ] Set up foreign key constraints and indexes
+- [x] Create `users` table (id, username, apns_token, created_at)
+- [x] Create `categories` table (id, name, icon_url)
+- [x] Create `sessions` table (id, creator_id, category_id, quorum_n, status, matched_option_id, invite_code, created_at)
+- [x] Create `session_participants` table (session_id, user_id, joined_at)
+- [x] Create `options` table (id, category_id, label, image_url)
+- [x] Create `session_options` table (session_id, option_id, order_index)
+- [x] Create `likes` table (id, session_id, option_id, user_id, created_at)
+- [x] Set up foreign key constraints and indexes
 
 ### Step 3: Authentication and Security
-- [ ] Configure anonymous authentication
-- [ ] Set up Row Level Security (RLS) policies for each table
-- [ ] Implement session membership validation checks
+- [x] Configure anonymous authentication
+- [x] Set up Row Level Security (RLS) policies for each table
+- [x] Implement session membership validation checks
 
 ### Step 4: Database Triggers and Functions
-- [ ] Create trigger for preventing session join when full
-- [ ] Implement matching algorithm trigger on likes table
-- [ ] Create helper functions for session creation and management
+- [x] Create trigger for preventing session join when full
+- [x] Implement matching algorithm trigger on likes table
+- [x] Create helper functions for session creation and management
 
 ### Step 5: Edge Functions Implementation
-- [ ] Implement `like_option` function
-- [ ] Create `update_apns_token` function
-- [ ] Develop `notify_match` function for push notifications
+- [x] Implement `like_option` function
+- [x] Create `update_apns_token` function
+- [x] Develop `notify_match` function for push notifications
 - [ ] Test edge functions with mock data
 
 ### Step 6: Seed Data and Testing
-- [ ] Create seed data for categories and options
+- [x] Create seed data for categories and options
 - [ ] Test database constraints and triggers
 - [ ] Verify edge functions work correctly
 - [ ] Document API endpoints and functions

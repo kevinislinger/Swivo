@@ -87,7 +87,7 @@ Implementation:
 | Table | Purpose |
 |-------|---------|
 | `users` | id (uuid), username, apns_token (nullable), created_at |
-| `categories` | id, name, icon_url |
+| `categories` | id, name |
 | `sessions` | id, creator_id, category_id (fk), quorum_n, status (open/matched/closed), matched_option_id, invite_code, created_at |
 | `session_participants` | session_id, user_id, joined_at (CHECK: participant_count(session_id) < quota at insert time) |
 | `options` | id, category_id (fk), label, image_url |
@@ -168,9 +168,9 @@ Swivo/
 ├── docs/                                 # Project documentation
 │   └── CONTEXT.md                        # Developer guide (this file)
 │
-├── .gitignore                           # Git & Xcode derived data rules
+├── .gitignore                            # Git & Xcode derived data rules
 │
-├── .env.example                          # Sample environment variables
+├── .env                                  # Sample environment variables
 │
 └── README.md                             # Project overview & setup
 ```
