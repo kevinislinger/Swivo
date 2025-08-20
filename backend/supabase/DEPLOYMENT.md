@@ -15,6 +15,10 @@ To set up the GitHub Actions workflow, you need to add the following to your Git
 1. **SUPABASE_ACCESS_TOKEN**: Your Supabase access token
    - Get this from: https://supabase.com/dashboard/account/tokens
 
+2. **SUPABASE_DB_PASSWORD**: Your database password
+   - This is the password you set when creating your Supabase project
+   - You can reset it from: https://supabase.com/dashboard/project/[project-id]/settings/database
+
 #### Variables (Repository > Settings > Secrets and variables > Actions > Variables)
 
 1. **SUPABASE_PROJECT_ID**: Your Supabase project reference ID
@@ -64,6 +68,12 @@ If you prefer to deploy manually, you can use the following commands:
 ```bash
 cd backend/supabase
 supabase link --project-ref your-project-ref
+# You'll be prompted for your database password
+
+# Alternatively, you can use the --password-stdin flag:
+echo "your-db-password" | supabase link --project-ref your-project-ref --password-stdin
+
+# Then push your changes
 supabase db push
 ```
 
