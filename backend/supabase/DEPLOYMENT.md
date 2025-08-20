@@ -55,6 +55,8 @@ If you prefer to deploy manually, you can use the following commands:
 2. Login to Supabase:
    ```bash
    supabase login
+   # Or use a token directly:
+   supabase login --token your_access_token
    ```
 
 ### Deploy Database Changes

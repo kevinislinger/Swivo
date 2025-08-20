@@ -24,7 +24,7 @@ jobs:
           version: latest
       
       - name: Login to Supabase
-        run: supabase login --access-token $SUPABASE_ACCESS_TOKEN
+        run: supabase login --token $SUPABASE_ACCESS_TOKEN
       
       - name: Link to Supabase project
         working-directory: ./backend/supabase
