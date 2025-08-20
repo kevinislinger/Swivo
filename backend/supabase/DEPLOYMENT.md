@@ -70,8 +70,8 @@ cd backend/supabase
 supabase link --project-ref your-project-ref
 # You'll be prompted for your database password
 
-# Alternatively, you can use the --password-stdin flag:
-echo "your-db-password" | supabase link --project-ref your-project-ref --password-stdin
+# Alternatively, you can use the --password flag:
+supabase link --project-ref your-project-ref --password "your-db-password"
 
 # Then push your changes
 supabase db push
