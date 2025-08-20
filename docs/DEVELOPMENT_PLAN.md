@@ -99,27 +99,32 @@ This document outlines a step-by-step approach to implementing the Swivo applica
 
 ## Phase 3: Integration and Deployment
 
-### Step 1: End-to-End Testing
+### Step 1: CI/CD Setup
+- [x] Create GitHub Actions workflow for Supabase deployment
+- [ ] Configure required secrets in GitHub repository
+- [ ] Set up iOS CI pipeline
+
+### Step 2: End-to-End Testing
 - [ ] Test complete user flows with real backend
 - [ ] Verify push notifications work correctly
 - [ ] Test edge cases (network issues, app backgrounding)
 
-### Step 2: Performance Optimization
+### Step 3: Performance Optimization
 - [ ] Optimize database queries
 - [ ] Improve app loading and response times
 - [ ] Reduce network requests
 
-### Step 3: Deployment Preparation
+### Step 4: Deployment Preparation
 - [ ] Configure production environments
 - [ ] Set up APNs certificates for production
 - [ ] Prepare App Store assets and screenshots
 
-### Step 4: Documentation
+### Step 5: Documentation
 - [ ] Complete API documentation
 - [ ] Document known issues and limitations
 - [ ] Create user guide or help documentation
 
-### Step 5: Launch
+### Step 6: Launch
 - [ ] Deploy Supabase production instance
 - [ ] Submit app to App Store
 - [ ] Monitor initial usage and address issues
