@@ -28,20 +28,22 @@ This document outlines a step-by-step approach to implementing the Swivo applica
 - [x] Create trigger for preventing session join when full
 - [x] Implement matching algorithm trigger on likes table
 - [x] Create helper functions for session creation and management
+- [x] Add trigger for automatic user creation on signup
 
 ### Step 5: Edge Functions Implementation
 - [x] Implement `like_option` function
 - [x] Create `update_apns_token` function
 - [x] Develop `notify_match` function for push notifications
-- [ ] Test edge functions with mock data
+- [x] Test edge functions with mock data
 
 ### Step 6: Seed Data and Testing
 - [x] Create seed data for categories and options
 - [x] Apply database migrations 
 - [x] Deploy edge functions
 - [x] Document API endpoints and functions
-- [ ] Test database constraints and triggers
-- [ ] Verify edge functions work correctly
+- [x] Create test scripts for automated backend testing
+- [x] Test database constraints and triggers
+- [x] Verify edge functions work correctly
 
 ## Phase 2: iOS App Implementation
 
@@ -105,6 +107,8 @@ This document outlines a step-by-step approach to implementing the Swivo applica
 
 ### Step 1: CI/CD Setup
 - [x] Create GitHub Actions workflow for Supabase deployment
+- [x] Configure GitHub Actions workflow to use correct parameters
+- [x] Fix issues with database migrations and triggers
 - [ ] Configure required secrets in GitHub repository
 - [ ] Set up iOS CI pipeline
 

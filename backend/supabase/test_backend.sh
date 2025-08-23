@@ -76,18 +76,25 @@ echo "Using category ID: $CATEGORY_ID"
 # Test 3: Test create_session function
 echo -e "\n${YELLOW}[Test 3] Create session${NC}"
 
+# Create a session
 CREATE_SESSION_RESPONSE=$(curl -s -X POST "$SUPABASE_URL/rest/v1/rpc/create_session" \
   -H "apikey: $SUPABASE_KEY" \
   -H "Authorization: Bearer $ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
   -d "{\"p_category_id\": \"$CATEGORY_ID\", \"p_quorum_n\": 2}")
 
-SESSION_ID=$(echo $CREATE_SESSION_RESPONSE | grep -o '"session_id":"[^"]*' | cut -d'"' -f4)
-INVITE_CODE=$(echo $CREATE_SESSION_RESPONSE | grep -o '"invite_code":"[^"]*' | cut -d'"' -f4)
+echo "Response: $CREATE_SESSION_RESPONSE"
+
+SESSION_ID=$(echo $CREATE_SESSION_RESPONSE | grep -o '"session_id" *: *"[^"]*"' | grep -o '"[^"]*"' | tail -1 | tr -d '"')
+INVITE_CODE=$(echo $CREATE_SESSION_RESPONSE | grep -o '"invite_code" *: *"[^"]*"' | grep -o '"[^"]*"' | tail -1 | tr -d '"')
+
+echo "Full response: $CREATE_SESSION_RESPONSE"
 
 if [ -z "$SESSION_ID" ] || [ -z "$INVITE_CODE" ]; then
   test_result 1 "Create session" "Could not create session"
-  echo "Response: $CREATE_SESSION_RESPONSE"
+  echo "Error response: $CREATE_SESSION_RESPONSE" 
+  echo "Looking for invite code pattern in the response:"
+  echo $CREATE_SESSION_RESPONSE | grep -o '"invite_code":"[^"]*'
 else
   test_result 0 "Create session"
   echo "Session ID: $SESSION_ID"
@@ -141,13 +148,14 @@ if [ ! -z "$OPTION_ID" ]; then
     -H "Content-Type: application/json" \
     -d "{\"p_session_id\": \"$SESSION_ID\", \"p_option_id\": \"$OPTION_ID\"}")
   
-  LIKE_SUCCESS=$(echo $LIKE_RESPONSE | grep -o '"success":[^,}]*' | cut -d':' -f2)
+  echo "Like response: $LIKE_RESPONSE"
+  LIKE_SUCCESS=$(echo $LIKE_RESPONSE | grep -o '"success" *: *[^,}]*' | grep -o '[^:]*$' | tr -d ' "')
   
   if [ "$LIKE_SUCCESS" = "true" ]; then
     test_result 0 "Like option"
     
     # Check match status
-    MATCH_FOUND=$(echo $LIKE_RESPONSE | grep -o '"match_found":[^,}]*' | cut -d':' -f2)
+    MATCH_FOUND=$(echo $LIKE_RESPONSE | grep -o '"match_found" *: *[^,}]*' | grep -o '[^:]*$' | tr -d ' "')
     echo "Match found: $MATCH_FOUND (should be false since only one user has liked)"
   else
     test_result 1 "Like option" "Could not like option"
@@ -183,7 +191,8 @@ else
     -H "Content-Type: application/json" \
     -d "{\"p_invite_code\": \"$INVITE_CODE\"}")
   
-  JOIN_SUCCESS=$(echo $JOIN_RESPONSE | grep -o '"success":[^,}]*' | cut -d':' -f2)
+  echo "Join response: $JOIN_RESPONSE"
+  JOIN_SUCCESS=$(echo $JOIN_RESPONSE | grep -o '"success" *: *[^,}]*' | grep -o '[^:]*$' | tr -d ' ')
   
   if [ "$JOIN_SUCCESS" = "true" ]; then
     test_result 0 "Join session"
@@ -208,7 +217,8 @@ else
           -H "Content-Type: application/json" \
           -d "{\"p_session_id\": \"$SESSION_ID\", \"p_option_id\": \"$OPTION_ID\"}")
         
-        MATCH_FOUND_2=$(echo $LIKE_RESPONSE_2 | grep -o '"match_found":[^,}]*' | cut -d':' -f2)
+        echo "Second user like response: $LIKE_RESPONSE_2"
+        MATCH_FOUND_2=$(echo $LIKE_RESPONSE_2 | grep -o '"match_found" *: *[^,}]*' | grep -o '[^:]*$' | tr -d ' "')
         
         if [ "$MATCH_FOUND_2" = "true" ]; then
           test_result 0 "Match algorithm" 
@@ -247,8 +257,9 @@ CREATE_SESSION_RESPONSE_2=$(curl -s -X POST "$SUPABASE_URL/rest/v1/rpc/create_se
   -H "Content-Type: application/json" \
   -d "{\"p_category_id\": \"$CATEGORY_ID_2\", \"p_quorum_n\": 3}")
 
-SESSION_ID_2=$(echo $CREATE_SESSION_RESPONSE_2 | grep -o '"session_id":"[^"]*' | cut -d'"' -f4)
-INVITE_CODE_2=$(echo $CREATE_SESSION_RESPONSE_2 | grep -o '"invite_code":"[^"]*' | cut -d'"' -f4)
+echo "Second session response: $CREATE_SESSION_RESPONSE_2"
+SESSION_ID_2=$(echo $CREATE_SESSION_RESPONSE_2 | grep -o '"session_id" *: *"[^"]*"' | grep -o '"[^"]*"' | tail -1 | tr -d '"')
+INVITE_CODE_2=$(echo $CREATE_SESSION_RESPONSE_2 | grep -o '"invite_code" *: *"[^"]*"' | grep -o '"[^"]*"' | tail -1 | tr -d '"')
 
 if [ -z "$SESSION_ID_2" ] || [ -z "$INVITE_CODE_2" ]; then
   test_result 1 "Create second session" "Could not create second session"
