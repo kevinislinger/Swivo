@@ -37,24 +37,28 @@ This document outlines a step-by-step approach to implementing the Swivo applica
 
 ### Step 6: Seed Data and Testing
 - [x] Create seed data for categories and options
+- [x] Apply database migrations 
+- [x] Deploy edge functions
+- [x] Document API endpoints and functions
 - [ ] Test database constraints and triggers
 - [ ] Verify edge functions work correctly
-- [ ] Document API endpoints and functions
 
 ## Phase 2: iOS App Implementation
 
 ### Step 1: Project Setup
-- [ ] Create Xcode project with SwiftUI
-- [ ] Set up folder structure following the project structure
+- [x] Create Xcode project structure
+- [x] Set up folder structure following the project structure
+- [x] Define core data models
 - [ ] Configure build settings and deployment targets (iOS 17+)
 - [ ] Add required dependencies (Supabase Swift SDK)
 
 ### Step 2: Core Infrastructure
-- [ ] Implement Supabase client configuration
-- [ ] Create networking layer for API calls
-- [ ] Set up authentication service
+- [x] Implement Supabase client configuration
+- [x] Create networking layer for API calls
+- [x] Set up authentication service
+- [x] Create session management service
 - [ ] Implement push notification handling
-- [ ] Create data models matching the backend schema
+- [x] Create data models matching the backend schema
 
 ### Step 3: Feature Implementation - Landing Screen
 - [ ] Create UI for Open Sessions list

@@ -1,0 +1,872 @@
+{
+	"info": {
+		"_postman_id": "8f6d7e9a-5b3c-4a7c-9e11-8a72e5f43210",
+		"name": "Swivo API Tests",
+		"description": "A collection of API tests for the Swivo backend",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Anonymous Sign Up",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has access token\", function () {",
+									"    pm.expect(jsonData.access_token).to.not.be.undefined;",
+									"});",
+									"",
+									"pm.test(\"Response has refresh token\", function () {",
+									"    pm.expect(jsonData.refresh_token).to.not.be.undefined;",
+									"});",
+									"",
+									"pm.test(\"Response has user data\", function () {",
+									"    pm.expect(jsonData.user).to.not.be.undefined;",
+									"    pm.expect(jsonData.user.id).to.not.be.undefined;",
+									"});",
+									"",
+									"// Store tokens for other requests",
+									"if (jsonData.access_token) {",
+									"    pm.environment.set(\"access_token\", jsonData.access_token);",
+									"}",
+									"",
+									"if (jsonData.refresh_token) {",
+									"    pm.environment.set(\"refresh_token\", jsonData.refresh_token);",
+									"}",
+									"",
+									"if (jsonData.user && jsonData.user.id) {",
+									"    pm.environment.set(\"user_id\", jsonData.user.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{supabase_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{supabase_url}}/auth/v1/signup",
+							"host": [
+								"{{supabase_url}}"
+							],
+							"path": [
+								"auth",
+								"v1",
+								"signup"
+							]
+						},
+						"description": "Sign up anonymously with Supabase"
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication related API tests"
+		},
+		{
+			"name": "Categories",
+			"item": [
+				{
+					"name": "Get All Categories",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    pm.expect(Array.isArray(jsonData)).to.be.true;",
+									"});",
+									"",
+									"pm.test(\"Categories have required fields\", function () {",
+									"    if (jsonData.length > 0) {",
+									"        pm.expect(jsonData[0].id).to.not.be.undefined;",
+									"        pm.expect(jsonData[0].name).to.not.be.undefined;",
+									"    }",
+									"});",
+									"",
+									"// Store the first category ID for later use",
+									"if (jsonData && jsonData.length > 0) {",
+									"    pm.environment.set(\"category_id\", jsonData[0].id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{supabase_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{supabase_url}}/rest/v1/categories?select=*",
+							"host": [
+								"{{supabase_url}}"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"categories"
+							],
+							"query": [
+								{
+									"key": "select",
+									"value": "*"
+								}
+							]
+						},
+						"description": "Get all categories"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Category Options",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    pm.expect(Array.isArray(jsonData)).to.be.true;",
+									"});",
+									"",
+									"pm.test(\"Options have required fields\", function () {",
+									"    if (jsonData.length > 0) {",
+									"        pm.expect(jsonData[0].id).to.not.be.undefined;",
+									"        pm.expect(jsonData[0].label).to.not.be.undefined;",
+									"        pm.expect(jsonData[0].category_id).to.not.be.undefined;",
+									"    }",
+									"});",
+									"",
+									"// Store the first option ID for later use",
+									"if (jsonData && jsonData.length > 0) {",
+									"    pm.environment.set(\"option_id\", jsonData[0].id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{supabase_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{supabase_url}}/rest/v1/options?select=*&category_id=eq.{{category_id}}",
+							"host": [
+								"{{supabase_url}}"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"options"
+							],
+							"query": [
+								{
+									"key": "select",
+									"value": "*"
+								},
+								{
+									"key": "category_id",
+									"value": "eq.{{category_id}}"
+								}
+							]
+						},
+						"description": "Get options for a specific category"
+					},
+					"response": []
+				}
+			],
+			"description": "Category related API tests"
+		},
+		{
+			"name": "Sessions",
+			"item": [
+				{
+					"name": "Create Session",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has session_id\", function () {",
+									"    pm.expect(jsonData.session_id).to.not.be.undefined;",
+									"});",
+									"",
+									"pm.test(\"Response has invite_code\", function () {",
+									"    pm.expect(jsonData.invite_code).to.not.be.undefined;",
+									"});",
+									"",
+									"// Store session data for later use",
+									"if (jsonData.session_id) {",
+									"    pm.environment.set(\"session_id\", jsonData.session_id);",
+									"}",
+									"",
+									"if (jsonData.invite_code) {",
+									"    pm.environment.set(\"invite_code\", jsonData.invite_code);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{supabase_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"p_category_id\": \"{{category_id}}\",\n    \"p_quorum_n\": 2\n}"
+						},
+						"url": {
+							"raw": "{{supabase_url}}/rest/v1/rpc/create_session",
+							"host": [
+								"{{supabase_url}}"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"rpc",
+								"create_session"
+							]
+						},
+						"description": "Create a new session"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Session Details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has session data\", function () {",
+									"    pm.expect(jsonData.length).to.be.greaterThan(0);",
+									"    if (jsonData.length > 0) {",
+									"        pm.expect(jsonData[0].id).to.not.be.undefined;",
+									"        pm.expect(jsonData[0].status).to.not.be.undefined;",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{supabase_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{supabase_url}}/rest/v1/sessions?select=*&id=eq.{{session_id}}",
+							"host": [
+								"{{supabase_url}}"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"sessions"
+							],
+							"query": [
+								{
+									"key": "select",
+									"value": "*"
+								},
+								{
+									"key": "id",
+									"value": "eq.{{session_id}}"
+								}
+							]
+						},
+						"description": "Get details of a session"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Session Options",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    pm.expect(Array.isArray(jsonData)).to.be.true;",
+									"});",
+									"",
+									"pm.test(\"Session options have required fields\", function () {",
+									"    if (jsonData.length > 0) {",
+									"        pm.expect(jsonData[0].option_id).to.not.be.undefined;",
+									"        pm.expect(jsonData[0].order_index).to.not.be.undefined;",
+									"    }",
+									"});",
+									"",
+									"// Store the first session option ID for later use",
+									"if (jsonData && jsonData.length > 0) {",
+									"    pm.environment.set(\"session_option_id\", jsonData[0].option_id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{supabase_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{supabase_url}}/rest/v1/session_options?select=option_id,order_index&session_id=eq.{{session_id}}",
+							"host": [
+								"{{supabase_url}}"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"session_options"
+							],
+							"query": [
+								{
+									"key": "select",
+									"value": "option_id,order_index"
+								},
+								{
+									"key": "session_id",
+									"value": "eq.{{session_id}}"
+								}
+							]
+						},
+						"description": "Get options for a specific session"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Session Participants",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    pm.expect(Array.isArray(jsonData)).to.be.true;",
+									"});",
+									"",
+									"pm.test(\"Creator is a participant\", function () {",
+									"    pm.expect(jsonData.length).to.be.greaterThan(0);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{supabase_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{supabase_url}}/rest/v1/session_participants?select=*&session_id=eq.{{session_id}}",
+							"host": [
+								"{{supabase_url}}"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"session_participants"
+							],
+							"query": [
+								{
+									"key": "select",
+									"value": "*"
+								},
+								{
+									"key": "session_id",
+									"value": "eq.{{session_id}}"
+								}
+							]
+						},
+						"description": "Get participants in a session"
+					},
+					"response": []
+				},
+				{
+					"name": "Like Option",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has success field\", function () {",
+									"    pm.expect(jsonData.success).to.not.be.undefined;",
+									"});",
+									"",
+									"pm.test(\"Response has match_found field\", function () {",
+									"    pm.expect(jsonData.match_found).to.not.be.undefined;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{supabase_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"p_session_id\": \"{{session_id}}\",\n    \"p_option_id\": \"{{session_option_id}}\"\n}"
+						},
+						"url": {
+							"raw": "{{supabase_url}}/rest/v1/rpc/like_option",
+							"host": [
+								"{{supabase_url}}"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"rpc",
+								"like_option"
+							]
+						},
+						"description": "Like an option in a session"
+					},
+					"response": []
+				},
+				{
+					"name": "Join Session",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has success field\", function () {",
+									"    pm.expect(jsonData.success).to.not.be.undefined;",
+									"});",
+									"",
+									"if (jsonData.success) {",
+									"    pm.test(\"Session join was successful\", function () {",
+									"        pm.expect(jsonData.session_id).to.not.be.undefined;",
+									"    });",
+									"} else {",
+									"    pm.test(\"Session join failed with message\", function () {",
+									"        pm.expect(jsonData.message).to.not.be.undefined;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{supabase_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"p_invite_code\": \"{{invite_code}}\"\n}"
+						},
+						"url": {
+							"raw": "{{supabase_url}}/rest/v1/rpc/join_session",
+							"host": [
+								"{{supabase_url}}"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"rpc",
+								"join_session"
+							]
+						},
+						"description": "Join a session using an invite code"
+					},
+					"response": []
+				},
+				{
+					"name": "Close Session",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var success = pm.response.json();",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response indicates success\", function () {",
+									"    pm.expect(typeof success).to.equal(\"boolean\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{supabase_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"p_session_id\": \"{{session_id}}\"\n}"
+						},
+						"url": {
+							"raw": "{{supabase_url}}/rest/v1/rpc/close_session",
+							"host": [
+								"{{supabase_url}}"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"rpc",
+								"close_session"
+							]
+						},
+						"description": "Close a session (only works if user is creator)"
+					},
+					"response": []
+				}
+			],
+			"description": "Session related API tests"
+		},
+		{
+			"name": "Edge Functions",
+			"item": [
+				{
+					"name": "Update APNS Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has success field\", function () {",
+									"    pm.expect(jsonData.success).to.not.be.undefined;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{supabase_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": \"test-apns-token-for-testing\"\n}"
+						},
+						"url": {
+							"raw": "{{supabase_url}}/functions/v1/update_apns_token",
+							"host": [
+								"{{supabase_url}}"
+							],
+							"path": [
+								"functions",
+								"v1",
+								"update_apns_token"
+							]
+						},
+						"description": "Update the APNS token for the current user"
+					},
+					"response": []
+				},
+				{
+					"name": "Like Option (Edge Function)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has success field\", function () {",
+									"    pm.expect(jsonData.success).to.not.be.undefined;",
+									"});",
+									"",
+									"pm.test(\"Response has match_found field\", function () {",
+									"    pm.expect(jsonData.match_found).to.not.be.undefined;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{supabase_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"session_id\": \"{{session_id}}\",\n    \"option_id\": \"{{session_option_id}}\"\n}"
+						},
+						"url": {
+							"raw": "{{supabase_url}}/functions/v1/like_option",
+							"host": [
+								"{{supabase_url}}"
+							],
+							"path": [
+								"functions",
+								"v1",
+								"like_option"
+							]
+						},
+						"description": "Like an option in a session using the edge function"
+					},
+					"response": []
+				}
+			],
+			"description": "Edge Function API tests"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "supabase_url",
+			"value": "https://YOUR_PROJECT_ID.supabase.co",
+			"type": "string"
+		},
+		{
+			"key": "supabase_key",
+			"value": "YOUR_SUPABASE_PUBLIC_KEY",
+			"type": "string"
+		}
+	]
+}
