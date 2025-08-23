@@ -86,7 +86,7 @@ DECLARE
   v_session_record sessions%ROWTYPE;
 BEGIN
   -- Generate a random 6-character invite code
-  v_invite_code := upper(substr(md5(random()::text), 0, 6));
+  v_invite_code := upper(substr(md5(random()::text), 1, 6));
   
   -- Create the session
   INSERT INTO sessions (
