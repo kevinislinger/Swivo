@@ -51,16 +51,16 @@ This document outlines a step-by-step approach to implementing the Swivo applica
 - [x] Create Xcode project structure
 - [x] Set up folder structure following the project structure
 - [x] Define core data models
-- [ ] Configure build settings and deployment targets (iOS 17+)
-- [ ] Add required dependencies (Supabase Swift SDK)
+- [x] Configure build settings and deployment targets (iOS 17+)
+- [x] Add required dependencies (Supabase Swift SDK)
 
 ### Step 2: Core Infrastructure
-- [x] Implement Supabase client configuration
-- [x] Create networking layer for API calls
-- [x] Set up authentication service
-- [x] Create session management service
+- [ ] Implement Supabase client configuration
+- [ ] Create networking layer for API calls
+- [ ] Set up authentication service
+- [ ] Create session management service
 - [ ] Implement push notification handling
-- [x] Create data models matching the backend schema
+- [ ] Create data models matching the backend schema
 
 ### Step 3: Feature Implementation - Landing Screen
 - [ ] Create UI for Open Sessions list
@@ -70,13 +70,13 @@ This document outlines a step-by-step approach to implementing the Swivo applica
 
 ### Step 4: Feature Implementation - Session Management
 - [ ] Implement Start Session flow
-  - [ ] Category selection UI
-  - [ ] Quorum setting UI
-  - [ ] Invite code generation and sharing
+- [ ] Category selection UI
+- [ ] Quorum setting UI
+- [ ] Invite code generation and sharing
 - [ ] Implement Join Session flow
-  - [ ] Invite code input UI
-  - [ ] Session validation logic
-  - [ ] Error handling for full or closed sessions
+- [ ] Invite code input UI
+- [ ] Session validation logic
+- [ ] Error handling for full or closed sessions
 
 ### Step 5: Feature Implementation - Swipe Deck
 - [ ] Create card UI for options
@@ -109,7 +109,7 @@ This document outlines a step-by-step approach to implementing the Swivo applica
 - [x] Create GitHub Actions workflow for Supabase deployment
 - [x] Configure GitHub Actions workflow to use correct parameters
 - [x] Fix issues with database migrations and triggers
-- [ ] Configure required secrets in GitHub repository
+- [x] Configure required secrets in GitHub repository
 - [ ] Set up iOS CI pipeline
 
 ### Step 2: End-to-End Testing

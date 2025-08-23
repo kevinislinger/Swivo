@@ -6,6 +6,15 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		0A508FB42E5A22D70065E73D /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = 0A508FB32E5A22D70065E73D /* Auth */; };
+		0A508FB62E5A22D70065E73D /* Functions in Frameworks */ = {isa = PBXBuildFile; productRef = 0A508FB52E5A22D70065E73D /* Functions */; };
+		0A508FB82E5A22D70065E73D /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = 0A508FB72E5A22D70065E73D /* PostgREST */; };
+		0A508FBA2E5A22D70065E73D /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = 0A508FB92E5A22D70065E73D /* Realtime */; };
+		0A508FBC2E5A22D70065E73D /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = 0A508FBB2E5A22D70065E73D /* Storage */; };
+		0A508FD22E5A3CA00065E73D /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 0A508FD12E5A3CA00065E73D /* Supabase */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		0A508F7A2E5439DE0065E73D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +61,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0A508FB82E5A22D70065E73D /* PostgREST in Frameworks */,
+				0A508FB62E5A22D70065E73D /* Functions in Frameworks */,
+				0A508FD22E5A3CA00065E73D /* Supabase in Frameworks */,
+				0A508FB42E5A22D70065E73D /* Auth in Frameworks */,
+				0A508FBC2E5A22D70065E73D /* Storage in Frameworks */,
+				0A508FBA2E5A22D70065E73D /* Realtime in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +93,7 @@
 				0A508F6E2E5439DC0065E73D /* Swivo */,
 				0A508F7C2E5439DE0065E73D /* SwivoTests */,
 				0A508F862E5439DE0065E73D /* SwivoUITests */,
+				0A508FD02E5A3CA00065E73D /* Frameworks */,
 				0A508F6D2E5439DC0065E73D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -90,6 +106,13 @@
 				0A508F832E5439DE0065E73D /* SwivoUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		0A508FD02E5A3CA00065E73D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -112,6 +135,12 @@
 			);
 			name = Swivo;
 			packageProductDependencies = (
+				0A508FB32E5A22D70065E73D /* Auth */,
+				0A508FB52E5A22D70065E73D /* Functions */,
+				0A508FB72E5A22D70065E73D /* PostgREST */,
+				0A508FB92E5A22D70065E73D /* Realtime */,
+				0A508FBB2E5A22D70065E73D /* Storage */,
+				0A508FD12E5A3CA00065E73D /* Supabase */,
 			);
 			productName = Swivo;
 			productReference = 0A508F6C2E5439DC0065E73D /* Swivo.app */;
@@ -195,6 +224,9 @@
 			);
 			mainGroup = 0A508F632E5439DC0065E73D;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				0A508FB22E5A22D70065E73D /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0A508F6D2E5439DC0065E73D /* Products */;
 			projectDirPath = "";
@@ -400,12 +432,14 @@
 				DEVELOPMENT_TEAM = 7QL37J3U34;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Swivo;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -433,12 +467,14 @@
 				DEVELOPMENT_TEAM = 7QL37J3U34;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Swivo;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -568,6 +604,50 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		0A508FB22E5A22D70065E73D /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0A508FB32E5A22D70065E73D /* Auth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0A508FB22E5A22D70065E73D /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Auth;
+		};
+		0A508FB52E5A22D70065E73D /* Functions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0A508FB22E5A22D70065E73D /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Functions;
+		};
+		0A508FB72E5A22D70065E73D /* PostgREST */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0A508FB22E5A22D70065E73D /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = PostgREST;
+		};
+		0A508FB92E5A22D70065E73D /* Realtime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0A508FB22E5A22D70065E73D /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Realtime;
+		};
+		0A508FBB2E5A22D70065E73D /* Storage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0A508FB22E5A22D70065E73D /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Storage;
+		};
+		0A508FD12E5A3CA00065E73D /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0A508FB22E5A22D70065E73D /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0A508F642E5439DC0065E73D /* Project object */;
 }
