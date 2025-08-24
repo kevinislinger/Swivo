@@ -56,7 +56,7 @@ This document outlines a step-by-step approach to implementing the Swivo applica
 
 ### Step 2: Core Infrastructure
 - [x] Implement Supabase client configuration
-- [ ] Create networking layer for API calls
+- [x] Create networking layer for API calls
 - [x] Set up authentication service
 - [ ] Create session management service
 - [x] Create data models matching the backend schema
