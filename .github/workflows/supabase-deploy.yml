@@ -42,27 +42,36 @@ jobs:
           if [[ $GITHUB_REF == "refs/heads/main" ]]; then
             echo "IS_PRODUCTION=true" >> $GITHUB_ENV
             echo "APNS_KEY_ID=${{ secrets.APNS_KEY_ID_PRODUCTION }}" >> $GITHUB_ENV
-            echo "APNS_KEY=${{ secrets.APNS_KEY_PRODUCTION }}" >> $GITHUB_ENV
             echo "Using production APNs configuration"
           else
             echo "IS_PRODUCTION=false" >> $GITHUB_ENV
             echo "APNS_KEY_ID=${{ secrets.APNS_KEY_ID_SANDBOX }}" >> $GITHUB_ENV
-            echo "APNS_KEY=${{ secrets.APNS_KEY_SANDBOX }}" >> $GITHUB_ENV
             echo "Using sandbox APNs configuration"
           fi
 
       # Deploy each Edge Function separately with environment variables
       - name: Deploy notify_match function with APNs configuration
         working-directory: ./backend/supabase
+        env:
+          # Use the appropriate APNs key based on branch
+          APNS_KEY: ${{ github.ref == 'refs/heads/main' && secrets.APNS_KEY_PRODUCTION || secrets.APNS_KEY_SANDBOX }}
         run: |
-          supabase functions deploy notify_match --project-ref $SUPABASE_PROJECT_ID --no-verify-jwt --env-file <(cat <<EOF
-          APPLE_TEAM_ID=${{ secrets.APPLE_TEAM_ID }}
-          APPLE_BUNDLE_ID=${{ secrets.APPLE_BUNDLE_ID }}
-          APNS_KEY_ID=${{ env.APNS_KEY_ID }}
-          APNS_KEY='${{ env.APNS_KEY }}'
-          IS_PRODUCTION=${{ env.IS_PRODUCTION }}
-          EOF
-          )
+          # Create a temporary env file with proper escaping
+          echo "APPLE_TEAM_ID=${{ secrets.APPLE_TEAM_ID }}" > .env.temp
+          echo "APPLE_BUNDLE_ID=${{ secrets.APPLE_BUNDLE_ID }}" >> .env.temp
+          echo "APNS_KEY_ID=${{ env.APNS_KEY_ID }}" >> .env.temp
+          echo "IS_PRODUCTION=${{ env.IS_PRODUCTION }}" >> .env.temp
+          
+          # Handle multiline PEM key by writing it to a temporary file
+          # This avoids issues with escaping newlines in env variables
+          echo "$APNS_KEY" > .apns_key.pem
+          echo "APNS_KEY=$(cat .apns_key.pem | base64 -w 0)" >> .env.temp
+          
+          # Deploy with the temp env file
+          supabase functions deploy notify_match --project-ref $SUPABASE_PROJECT_ID --no-verify-jwt --env-file .env.temp
+          
+          # Clean up temporary files
+          rm -f .env.temp .apns_key.pem
 
       # Deploy other functions that don't need APNs config
       - name: Deploy other Edge Functions

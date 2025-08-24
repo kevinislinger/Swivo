@@ -108,11 +108,20 @@ serve(async (req) => {
     }
 
     // Configure APNs options
-    const APNS_KEY = Deno.env.get('APNS_KEY') || '';
+    const encodedKey = Deno.env.get('APNS_KEY') || '';
+    // Decode the base64-encoded key
+    const APNS_KEY = atob(encodedKey);
     const APNS_KEY_ID = Deno.env.get('APNS_KEY_ID') || '';
     const APPLE_TEAM_ID = Deno.env.get('APPLE_TEAM_ID') || '';
     const APPLE_BUNDLE_ID = Deno.env.get('APPLE_BUNDLE_ID') || '';
     const IS_PRODUCTION = Deno.env.get('IS_PRODUCTION') === 'true';
+
+    console.log(`Using APNs configuration: 
+      Key ID: ${APNS_KEY_ID}
+      Team ID: ${APPLE_TEAM_ID}
+      Bundle ID: ${APPLE_BUNDLE_ID}
+      Production mode: ${IS_PRODUCTION}
+      Key length: ${APNS_KEY.length} characters`);
 
     // Configure APNs client
     const options = {
