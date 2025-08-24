@@ -2,7 +2,7 @@ name: Deploy Supabase
 
 on:
   push:
-    branches: [main]
+    branches: [main, staging]
     paths:
       - 'backend/supabase/**'
   workflow_dispatch:
@@ -18,6 +18,21 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Set environment variables based on branch
+        id: set_env
+        run: |
+          if [[ $GITHUB_REF == 'refs/heads/main' ]]; then
+            echo "IS_PRODUCTION=true" >> $GITHUB_ENV
+            echo "APNS_KEY_ID=${{ secrets.APNS_KEY_ID_PRODUCTION }}" >> $GITHUB_ENV
+            echo "APNS_KEY_BASE64=${{ secrets.APNS_KEY_PRODUCTION_BASE64 }}" >> $GITHUB_ENV
+            echo "Using production APNs credentials"
+          else
+            echo "IS_PRODUCTION=false" >> $GITHUB_ENV
+            echo "APNS_KEY_ID=${{ secrets.APNS_KEY_ID_SANDBOX }}" >> $GITHUB_ENV
+            echo "APNS_KEY_BASE64=${{ secrets.APNS_KEY_SANDBOX_BASE64 }}" >> $GITHUB_ENV
+            echo "Using sandbox APNs credentials"
+          fi
 
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
@@ -35,54 +50,34 @@ jobs:
         working-directory: ./backend/supabase
         run: supabase db push
       
-      # Set environment variables based on branch
-      - name: Set environment variables
-        id: set_env
-        run: |
-          if [[ $GITHUB_REF == "refs/heads/main" ]]; then
-            echo "IS_PRODUCTION=true" >> $GITHUB_ENV
-            echo "APNS_KEY_ID=${{ secrets.APNS_KEY_ID_PRODUCTION }}" >> $GITHUB_ENV
-            echo "Using production APNs configuration"
-          else
-            echo "IS_PRODUCTION=false" >> $GITHUB_ENV
-            echo "APNS_KEY_ID=${{ secrets.APNS_KEY_ID_SANDBOX }}" >> $GITHUB_ENV
-            echo "Using sandbox APNs configuration"
-          fi
-
-      # Deploy each Edge Function separately with environment variables
-      - name: Deploy notify_match function with APNs configuration
-        working-directory: ./backend/supabase
-        env:
-          # Use the appropriate APNs key based on branch
-          APNS_KEY: ${{ github.ref == 'refs/heads/main' && secrets.APNS_KEY_PRODUCTION || secrets.APNS_KEY_SANDBOX }}
-        run: |
-          # Create a temporary env file with proper escaping
-          echo "APPLE_TEAM_ID=${{ secrets.APPLE_TEAM_ID }}" > .env.temp
-          echo "APPLE_BUNDLE_ID=${{ secrets.APPLE_BUNDLE_ID }}" >> .env.temp
-          echo "APNS_KEY_ID=${{ env.APNS_KEY_ID }}" >> .env.temp
-          echo "IS_PRODUCTION=${{ env.IS_PRODUCTION }}" >> .env.temp
-          
-          # Handle multiline PEM key by writing it to a temporary file
-          # This avoids issues with escaping newlines in env variables
-          echo "$APNS_KEY" > .apns_key.pem
-          echo "APNS_KEY=$(cat .apns_key.pem | base64 -w 0)" >> .env.temp
-          
-          # Deploy with the temp env file
-          supabase functions deploy notify_match --project-ref $SUPABASE_PROJECT_ID --no-verify-jwt --env-file .env.temp
-          
-          # Clean up temporary files
-          rm -f .env.temp .apns_key.pem
-
-      # Deploy other functions that don't need APNs config
-      - name: Deploy other Edge Functions
+      - name: Deploy Standard Edge Functions
         working-directory: ./backend/supabase
         run: |
-          supabase functions deploy like_option --project-ref $SUPABASE_PROJECT_ID --no-verify-jwt
-          supabase functions deploy update_apns_token --project-ref $SUPABASE_PROJECT_ID --no-verify-jwt
+          supabase functions deploy like_option --project-ref $SUPABASE_PROJECT_ID
+          supabase functions deploy update_apns_token --project-ref $SUPABASE_PROJECT_ID
+      
+      - name: Deploy Notify Match Function with APNs Credentials
+        working-directory: ./backend/supabase
+        run: |
+          # Create temporary .env file for the function deployment
+          cat > .env.tmp << EOL
+          APPLE_TEAM_ID=${{ secrets.APPLE_TEAM_ID }}
+          APPLE_BUNDLE_ID=${{ secrets.APPLE_BUNDLE_ID }}
+          APNS_KEY_ID=${{ env.APNS_KEY_ID }}
+          APNS_KEY_BASE64=${{ env.APNS_KEY_BASE64 }}
+          IS_PRODUCTION=${{ env.IS_PRODUCTION }}
+          EOL
+          
+          # Deploy function with environment variables
+          supabase functions deploy notify_match --project-ref $SUPABASE_PROJECT_ID --env-file .env.tmp
+          
+          # Remove temporary env file
+          rm .env.tmp
 
       - name: Verify deployment
         working-directory: ./backend/supabase
         run: |
           echo "✅ Supabase deployment completed"
           echo "Database migrations applied"
-          echo "Edge functions deployed with proper APNs configuration"
+          echo "Edge functions deployed with APNs credentials"
+          echo "Environment: $([ "$IS_PRODUCTION" == "true" ] && echo "PRODUCTION" || echo "SANDBOX")"

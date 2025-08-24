@@ -1,7 +1,8 @@
-// Edge Function to notify users of a match via Apple Push Notifications
+// Edge Function to notify users of a match
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import * as apn from 'https://esm.sh/apn@2.2.0';
+// Import APNs library
+import { APNSClient } from 'https://deno.land/x/apns@1.0.5/mod.ts';
 
 // Define types
 interface WebhookPayload {
@@ -25,8 +26,10 @@ interface WebhookPayload {
 interface NotificationData {
   title: string;
   body: string;
-  sessionId: string;
-  optionId: string;
+  data: {
+    sessionId: string;
+    optionId: string;
+  };
 }
 
 serve(async (req) => {
@@ -95,130 +98,96 @@ serve(async (req) => {
     const notificationData: NotificationData = {
       title: 'Match Found!',
       body: `Everyone agreed on ${optionData.label}`,
-      sessionId,
-      optionId: matchedOptionId
+      data: {
+        sessionId,
+        optionId: matchedOptionId
+      }
     };
 
-    // Only proceed if we have users with valid tokens
-    if (users.length === 0) {
-      return new Response(
-        JSON.stringify({ success: true, message: 'No users with valid APNS tokens' }),
-        { headers: { 'Content-Type': 'application/json' }, status: 200 }
-      );
-    }
-
-    // Configure APNs options
-    const encodedKey = Deno.env.get('APNS_KEY') || '';
-    // Decode the base64-encoded key
-    const APNS_KEY = atob(encodedKey);
-    const APNS_KEY_ID = Deno.env.get('APNS_KEY_ID') || '';
-    const APPLE_TEAM_ID = Deno.env.get('APPLE_TEAM_ID') || '';
-    const APPLE_BUNDLE_ID = Deno.env.get('APPLE_BUNDLE_ID') || '';
+    // Get APNs credentials from environment variables
+    const APNS_KEY_BASE64 = Deno.env.get('APNS_KEY_BASE64');
+    const APNS_KEY_ID = Deno.env.get('APNS_KEY_ID');
+    const APPLE_TEAM_ID = Deno.env.get('APPLE_TEAM_ID');
+    const APPLE_BUNDLE_ID = Deno.env.get('APPLE_BUNDLE_ID');
     const IS_PRODUCTION = Deno.env.get('IS_PRODUCTION') === 'true';
 
-    console.log(`Using APNs configuration: 
-      Key ID: ${APNS_KEY_ID}
-      Team ID: ${APPLE_TEAM_ID}
-      Bundle ID: ${APPLE_BUNDLE_ID}
-      Production mode: ${IS_PRODUCTION}
-      Key length: ${APNS_KEY.length} characters`);
+    if (!APNS_KEY_BASE64 || !APNS_KEY_ID || !APPLE_TEAM_ID || !APPLE_BUNDLE_ID) {
+      throw new Error('Missing APNs credentials');
+    }
 
-    // Configure APNs client
-    const options = {
-      token: {
-        key: APNS_KEY,
-        keyId: APNS_KEY_ID,
-        teamId: APPLE_TEAM_ID,
-      },
-      production: IS_PRODUCTION
-    };
+    // Decode the base64 key
+    const APNS_KEY = atob(APNS_KEY_BASE64);
 
-    // Initialize APN provider
-    const apnProvider = new apn.Provider(options);
+    // Initialize APNs client
+    const apnsClient = new APNSClient({
+      team: APPLE_TEAM_ID,
+      keyId: APNS_KEY_ID,
+      key: APNS_KEY,
+      production: IS_PRODUCTION,
+    });
 
-    // Track successful and failed notifications
+    // Track successful notifications
     let successCount = 0;
-    let failedTokens = [];
+    const failedTokens = [];
 
     // Send notifications to each user
-    for (const user of users) {
+    const notificationPromises = users.map(async (user) => {
       try {
-        if (!user.apns_token) continue;
+        // Skip if token is missing
+        if (!user.apns_token) return;
 
-        const notification = new apn.Notification();
-        
-        notification.expiry = Math.floor(Date.now() / 1000) + 3600; // 1 hour
-        notification.badge = 1;
-        notification.sound = "ping.aiff";
-        notification.alert = {
-          title: notificationData.title,
-          body: notificationData.body
-        };
-        notification.topic = APPLE_BUNDLE_ID;
-        
-        // Add custom data
-        notification.payload = {
-          sessionId: notificationData.sessionId,
-          optionId: notificationData.optionId,
-          matchLabel: optionData.label
-        };
+        // Send the notification
+        const result = await apnsClient.send({
+          deviceToken: user.apns_token,
+          notification: {
+            aps: {
+              alert: {
+                title: notificationData.title,
+                body: notificationData.body,
+              },
+              sound: 'default',
+              badge: 1,
+              'content-available': 1,
+            },
+            sessionId: notificationData.data.sessionId,
+            optionId: notificationData.data.optionId,
+          }
+        });
 
-        // Send notification
-        const result = await apnProvider.send(notification, user.apns_token);
-        
-        // Handle results
-        if (result.sent.length > 0) {
+        if (result.error) {
+          // Handle invalid token
+          if (result.error.status === '410') {
+            failedTokens.push(user.apns_token);
+            // Set the token to null in the database
+            await supabaseClient
+              .from('users')
+              .update({ apns_token: null })
+              .eq('id', user.id);
+          }
+          console.error(`Failed to send notification to ${user.username}:`, result.error);
+        } else {
           successCount++;
         }
-        
-        if (result.failed.length > 0) {
-          // If token is invalid, mark it for removal
-          const failure = result.failed[0];
-          if (
-            failure.error && 
-            (
-              failure.error.reason === 'BadDeviceToken' || 
-              failure.error.reason === 'Unregistered' ||
-              failure.error.reason === 'DeviceTokenNotForTopic'
-            )
-          ) {
-            failedTokens.push({
-              userId: user.id,
-              token: user.apns_token,
-              reason: failure.error.reason
-            });
-          }
-          console.error(`Failed to send to ${user.username || 'user'}: ${JSON.stringify(failure)}`);
-        }
       } catch (err) {
-        console.error(`Error sending to user ${user.id}: ${err}`);
+        console.error(`Error sending notification to ${user.username}:`, err);
       }
-    }
+    });
 
-    // Clean up invalid tokens
+    // Wait for all notifications to be sent
+    await Promise.all(notificationPromises);
+
+    // Log results
+    console.log(`Sent ${successCount} notifications successfully`);
     if (failedTokens.length > 0) {
-      for (const { userId } of failedTokens) {
-        try {
-          await supabaseClient
-            .from('users')
-            .update({ apns_token: null })
-            .eq('id', userId);
-            
-          console.log(`Cleared invalid token for user ${userId}`);
-        } catch (err) {
-          console.error(`Error clearing token for user ${userId}: ${err}`);
-        }
-      }
+      console.log(`Found ${failedTokens.length} invalid tokens`);
     }
-
-    // Shut down the APNs provider
-    apnProvider.shutdown();
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: `Sent notifications to ${successCount} users, failed for ${failedTokens.length} users`,
-        matched_option: optionData.label 
+        message: `Notified ${successCount} users of match`,
+        matched_option: optionData.label,
+        invalid_tokens: failedTokens.length 
       }),
       { 
         headers: { 'Content-Type': 'application/json' },
