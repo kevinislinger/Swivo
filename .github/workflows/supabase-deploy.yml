@@ -2,7 +2,7 @@ name: Deploy Supabase
 
 on:
   push:
-    branches: [main, staging]
+    branches: [main]
     paths:
       - 'backend/supabase/**'
   workflow_dispatch:
@@ -14,25 +14,17 @@ jobs:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       SUPABASE_PROJECT_ID: ${{ vars.SUPABASE_PROJECT_ID }}
       SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      # APNs environment variables
+      APPLE_BUNDLE_ID: ${{ vars.APPLE_BUNDLE_ID }}
+      APPLE_TEAM_ID: ${{ vars.APPLE_TEAM_ID }}
+      APNS_KEY_ID_SANDBOX: ${{ secrets.APNS_KEY_ID_SANDBOX }}
+      APNS_KEY_ID_PRODUCTION: ${{ secrets.APNS_KEY_ID_PRODUCTION }}
+      APNS_P8_SANDBOX: ${{ secrets.APNS_KEY_SANDBOX }}
+      APNS_P8_PRODUCTION: ${{ secrets.APNS_KEY_PRODUCTION }}
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
-      - name: Set environment variables based on branch
-        id: set_env
-        run: |
-          if [[ $GITHUB_REF == 'refs/heads/main' ]]; then
-            echo "IS_PRODUCTION=true" >> $GITHUB_ENV
-            echo "APNS_KEY_ID=${{ secrets.APNS_KEY_ID_PRODUCTION }}" >> $GITHUB_ENV
-            echo "APNS_KEY_BASE64=${{ secrets.APNS_KEY_PRODUCTION_BASE64 }}" >> $GITHUB_ENV
-            echo "Using production APNs credentials"
-          else
-            echo "IS_PRODUCTION=false" >> $GITHUB_ENV
-            echo "APNS_KEY_ID=${{ secrets.APNS_KEY_ID_SANDBOX }}" >> $GITHUB_ENV
-            echo "APNS_KEY_BASE64=${{ secrets.APNS_KEY_SANDBOX_BASE64 }}" >> $GITHUB_ENV
-            echo "Using sandbox APNs credentials"
-          fi
 
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
@@ -50,29 +42,34 @@ jobs:
         working-directory: ./backend/supabase
         run: supabase db push
       
-      - name: Deploy Standard Edge Functions
-        working-directory: ./backend/supabase
+      # Set APNs environment variables as Supabase secrets
+      - name: Set APNs environment variables
         run: |
-          supabase functions deploy like_option --project-ref $SUPABASE_PROJECT_ID
-          supabase functions deploy update_apns_token --project-ref $SUPABASE_PROJECT_ID
+          supabase secrets set APPLE_BUNDLE_ID="$APPLE_BUNDLE_ID" --project-ref $SUPABASE_PROJECT_ID
+          supabase secrets set APPLE_TEAM_ID="$APPLE_TEAM_ID" --project-ref $SUPABASE_PROJECT_ID
+          supabase secrets set APNS_KEY_ID_SANDBOX="$APNS_KEY_ID_SANDBOX" --project-ref $SUPABASE_PROJECT_ID
+          supabase secrets set APNS_KEY_ID_PRODUCTION="$APNS_KEY_ID_PRODUCTION" --project-ref $SUPABASE_PROJECT_ID
+          supabase secrets set APNS_P8_SANDBOX="$APNS_P8_SANDBOX" --project-ref $SUPABASE_PROJECT_ID
+          supabase secrets set APNS_P8_PRODUCTION="$APNS_P8_PRODUCTION" --project-ref $SUPABASE_PROJECT_ID
+          supabase secrets set IS_PRODUCTION="false" --project-ref $SUPABASE_PROJECT_ID
       
-      - name: Deploy Notify Match Function with APNs Credentials
+      # Specifically deploy the notify_match function with environment variables
+      - name: Deploy notify_match function
         working-directory: ./backend/supabase
         run: |
-          # Create temporary .env file for the function deployment
-          cat > .env.tmp << EOL
-          APPLE_TEAM_ID=${{ secrets.APPLE_TEAM_ID }}
-          APPLE_BUNDLE_ID=${{ secrets.APPLE_BUNDLE_ID }}
-          APNS_KEY_ID=${{ env.APNS_KEY_ID }}
-          APNS_KEY_BASE64=${{ env.APNS_KEY_BASE64 }}
-          IS_PRODUCTION=${{ env.IS_PRODUCTION }}
-          EOL
-          
-          # Deploy function with environment variables
-          supabase functions deploy notify_match --project-ref $SUPABASE_PROJECT_ID --env-file .env.tmp
-          
-          # Remove temporary env file
-          rm .env.tmp
+          supabase functions deploy notify_match --project-ref $SUPABASE_PROJECT_ID
+      
+      # Deploy all other functions
+      - name: Deploy other Edge Functions
+        working-directory: ./backend/supabase
+        run: |
+          for dir in functions/*/; do
+            if [[ "$dir" != "functions/notify_match/" ]]; then
+              FUNCTION_NAME=$(basename "$dir")
+              echo "Deploying function: $FUNCTION_NAME"
+              supabase functions deploy "$FUNCTION_NAME" --project-ref $SUPABASE_PROJECT_ID
+            fi
+          done
 
       - name: Verify deployment
         working-directory: ./backend/supabase
@@ -80,4 +77,3 @@ jobs:
           echo "✅ Supabase deployment completed"
           echo "Database migrations applied"
           echo "Edge functions deployed with APNs credentials"
-          echo "Environment: $([ "$IS_PRODUCTION" == "true" ] && echo "PRODUCTION" || echo "SANDBOX")"
