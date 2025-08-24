@@ -22,7 +22,7 @@ class SupabaseService {
 
     // MARK: - Authentication
 
-    func signInAnonymouslyIfNeeded() async {
+    func signInAnonymouslyIfNeeded() async throws {
         do {
             // user() validates the token on the server
             _ = try await client.auth.user()
@@ -30,13 +30,9 @@ class SupabaseService {
         } catch {
             // If user() fails, it means no valid session exists.
             print("No valid user session found. Attempting to sign in anonymously.")
-            do {
-                // Proceed with anonymous sign-in
-                _ = try await client.auth.signInAnonymously()
-                print("Signed in anonymously successfully.")
-            } catch {
-                print("Error signing in anonymously: \(error)")
-            }
+            // Proceed with anonymous sign-in and allow errors to propagate
+            _ = try await client.auth.signInAnonymously()
+            print("Signed in anonymously successfully.")
         }
     }
 }
