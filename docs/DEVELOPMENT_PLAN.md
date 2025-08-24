@@ -58,7 +58,7 @@ This document outlines a step-by-step approach to implementing the Swivo applica
 - [x] Implement Supabase client configuration
 - [x] Create networking layer for API calls
 - [x] Set up authentication service
-- [ ] Create session management service
+- [x] Create session management service
 - [x] Create data models matching the backend schema
 - [ ] Implement push notification handling
 
