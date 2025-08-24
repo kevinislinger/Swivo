@@ -55,12 +55,12 @@ This document outlines a step-by-step approach to implementing the Swivo applica
 - [x] Add required dependencies (Supabase Swift SDK)
 
 ### Step 2: Core Infrastructure
-- [ ] Implement Supabase client configuration
+- [x] Implement Supabase client configuration
 - [ ] Create networking layer for API calls
 - [ ] Set up authentication service
 - [ ] Create session management service
-- [ ] Implement push notification handling
 - [ ] Create data models matching the backend schema
+- [ ] Implement push notification handling
 
 ### Step 3: Feature Implementation - Landing Screen
 - [ ] Create UI for Open Sessions list
