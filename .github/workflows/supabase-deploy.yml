@@ -35,13 +35,45 @@ jobs:
         working-directory: ./backend/supabase
         run: supabase db push
       
-      - name: Deploy Edge Functions
+      # Set environment variables based on branch
+      - name: Set environment variables
+        id: set_env
+        run: |
+          if [[ $GITHUB_REF == "refs/heads/main" ]]; then
+            echo "IS_PRODUCTION=true" >> $GITHUB_ENV
+            echo "APNS_KEY_ID=${{ secrets.APNS_KEY_ID_PRODUCTION }}" >> $GITHUB_ENV
+            echo "APNS_KEY=${{ secrets.APNS_KEY_PRODUCTION }}" >> $GITHUB_ENV
+            echo "Using production APNs configuration"
+          else
+            echo "IS_PRODUCTION=false" >> $GITHUB_ENV
+            echo "APNS_KEY_ID=${{ secrets.APNS_KEY_ID_SANDBOX }}" >> $GITHUB_ENV
+            echo "APNS_KEY=${{ secrets.APNS_KEY_SANDBOX }}" >> $GITHUB_ENV
+            echo "Using sandbox APNs configuration"
+          fi
+
+      # Deploy each Edge Function separately with environment variables
+      - name: Deploy notify_match function with APNs configuration
         working-directory: ./backend/supabase
-        run: supabase functions deploy --project-ref $SUPABASE_PROJECT_ID
+        run: |
+          supabase functions deploy notify_match --project-ref $SUPABASE_PROJECT_ID --no-verify-jwt --env-file <(cat <<EOF
+          APPLE_TEAM_ID=${{ secrets.APPLE_TEAM_ID }}
+          APPLE_BUNDLE_ID=${{ secrets.APPLE_BUNDLE_ID }}
+          APNS_KEY_ID=${{ env.APNS_KEY_ID }}
+          APNS_KEY='${{ env.APNS_KEY }}'
+          IS_PRODUCTION=${{ env.IS_PRODUCTION }}
+          EOF
+          )
+
+      # Deploy other functions that don't need APNs config
+      - name: Deploy other Edge Functions
+        working-directory: ./backend/supabase
+        run: |
+          supabase functions deploy like_option --project-ref $SUPABASE_PROJECT_ID --no-verify-jwt
+          supabase functions deploy update_apns_token --project-ref $SUPABASE_PROJECT_ID --no-verify-jwt
 
       - name: Verify deployment
         working-directory: ./backend/supabase
         run: |
           echo "✅ Supabase deployment completed"
           echo "Database migrations applied"
-          echo "Edge functions deployed"
+          echo "Edge functions deployed with proper APNs configuration"
